@@ -1,0 +1,30 @@
+name: yohamaru
+version: 0.1.0.0
+category: Proof
+author: aiya000
+maintainer: aiya000 <aiya000.develop@gmail.com>
+copyright: aiya000
+license: MIT
+homepage: https://github.com/aiya000/hs-yohamaru
+
+ghc-options:
+    - -Wall
+    - -Wno-name-shadowing
+    - -Wno-unused-do-bind
+    - -Wno-orphans
+    - -fprint-potential-instances
+    - -fprint-explicit-kinds
+
+dependencies:
+  - base >=4.7 && <5
+
+# このプロジェクトではほとんどコンパイル時の定理証明しかしないから
+# テストはしないずら
+executables:
+  yohamaru-goes-to-date-with-proof:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
