@@ -17,6 +17,7 @@ ghc-options:
 
 dependencies:
   - base >=4.7 && <5
+  - zuramaru
 
 # このプロジェクトではほとんどコンパイル時の定理証明しかしないから
 # テストはしないずら

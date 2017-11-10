@@ -1,6 +1,10 @@
 resolver: lts-9.12
-packages:
-  - .
 flags: {}
 extra-package-dbs: []
+packages:
+    - .
+    - '../hs-zuramaru'
+#  - location:
+#      git: https://github.com/aiya000/hs-zuramaru.git
+#      commit: aa04d7abd212cbcbcfa848ecdbe2ca51ff96a509
 extra-deps: []
