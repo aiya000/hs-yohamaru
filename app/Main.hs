@@ -5,11 +5,15 @@
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Main where
 
 import Data.Proxy (Proxy(..))
 import Data.Singletons (SingI(..), Sing)
+import Data.Type.Bool (If)
+import Data.Type.Equality (type (==))
 import GHC.TypeLits (Symbol, symbolVal, Nat, natVal, KnownSymbol, KnownNat)
 import Maru.Type
 import qualified Maru.Type as MSym
@@ -106,7 +110,7 @@ instance SingI HNil where
   sing :: Sing HNil
   sing = HNilS
 
-instance KnownSymbol s => SingI (HAtomSymbol (s :: Symbol)) where
+instance KnownSymbol s => SingI (HAtomSymbol s) where
   sing :: Sing (HAtomSymbol s)
   sing = HAtomSymbolS . MSym.pack $ symbolVal (Proxy :: Proxy s)
 
@@ -169,11 +173,33 @@ instance (SingI x, SingI y) => SingI (HCons x y) where
             instance AClass Maru
 
     花丸「ずらあ…」
+
+    善子「これで天使と堕天使の、共同聖戦の準備が整ったわぁ！」ﾋﾟｶｧｯ
+-}
+
+-- | `assumption`ならば`result`
+type family AsFarAs (assumption :: k) (result :: k) :: Maybe k where
+  AsFarAs x y = If (x == y) (Just y) Nothing
+
+type family ZuraEats (xs :: HighSExpr) :: HighSExpr where
+  ZuraEats (HCons x xs) = xs
+  ZuraEats _            = HAtomSymbol "おらののっぽパンがないずら！？"
+
+{-
+    善子「Lispライクに定理証明したいから、申し訳程度だけどDSLを作ったわ」
 -}
 
 -- | のっぽパン
+type Noppo = HAtomSymbol "noppo-pan"
+
 -- | 1つあるのっぽパンは食べたらなくなる
+type XProof =
+  (AsFarAs (ZuraEats (HCons Noppo HNil)) HNil)
+
 -- | 1つあるのっぽパンにのっぽパンが1つ増えたら、食べても1つ残る
+type YProof =
+  (AsFarAs (ZuraEats (HCons Noppo (HCons Noppo HNil)))
+      (HCons Noppo HNil))
 
 main :: IO ()
 main = putStrLn "天界にてLispで定理証明…やっていくわよ！"
