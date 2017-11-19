@@ -12,7 +12,7 @@ module Main where
 
 import Data.Proxy (Proxy(..))
 import Data.Singletons (SingI(..), Sing)
-import Data.Type.Bool (If)
+import Data.Type.Bool (If, type (&&))
 import Data.Type.Equality (type (==))
 import GHC.TypeLits (Symbol, symbolVal, Nat, natVal, KnownSymbol, KnownNat)
 import Maru.Type
@@ -91,8 +91,7 @@ data instance Sing (HCons x y) = HConsS (Sing x) (Sing y)
     花丸「newtype instanceってなんずら？」
 
     善子「ずら丸はdata instanceは知ってる？」
-    花丸「型族…
-          type familyの、type synonymじゃなくてdata構築子を使う方ずら。
+    花丸「type familyの、type synonymじゃなくてdata構築子を使う方ずら。
           open data familiesでしょ？」
     善子「そうね。
           だからnewtype instanceもopen newtype familiesの割り当て規則の定義なのよ」
@@ -175,6 +174,15 @@ instance (SingI x, SingI y) => SingI (HCons x y) where
     花丸「ずらあ…」
 
     善子「これで天使と堕天使の、共同聖戦の準備が整ったわぁ！」ﾋﾟｶｧｯ
+    花丸「依存型周りのことずらね」
+-}
+
+type instance HNil          == HNil          = True
+type instance HAtomInt x    == HAtomInt y    = x == y
+type instance HAtomSymbol x == HAtomSymbol y = x == y
+type instance HCons x1 y1   == HCons x2 y2   = x1 == x2 && y1 == y2
+
+{-
 -}
 
 -- | `assumption`ならば`result`
@@ -189,6 +197,13 @@ type family ZuraEats (xs :: HighSExpr) :: HighSExpr where
     善子「Lispライクに定理証明したいから、申し訳程度だけどDSLを作ったわ」
 -}
 
+type family ExtractProof (x :: Maybe HighSExpr) :: HighSExpr where
+  ExtractProof (Just x) = x
+  ExtractProof _        = HAtomSymbol "証明が間違ってるずら"
+
+{-
+-}
+
 -- | のっぽパン
 type Noppo = HAtomSymbol "noppo-pan"
 
@@ -201,8 +216,12 @@ type YProof =
   (AsFarAs (ZuraEats (HCons Noppo (HCons Noppo HNil)))
       (HCons Noppo HNil))
 
+x :: Sing (ExtractProof XProof)
+x = sing
+
 main :: IO ()
-main = putStrLn "天界にてLispで定理証明…やっていくわよ！"
+main = do
+  putStrLn "天界にてLispで定理証明…やっていくわよ！"
 
 
 {- その他参考ページ
