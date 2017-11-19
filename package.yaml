@@ -12,7 +12,6 @@ ghc-options:
     - -Wno-name-shadowing
     - -Wno-unused-do-bind
     - -Wno-orphans
-    - -Wno-unticked-promoted-constructors
     - -fprint-potential-instances
     - -fprint-explicit-kinds
 
