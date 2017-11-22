@@ -11,7 +11,7 @@
 module Main where
 
 import Data.Proxy (Proxy(..))
-import Data.Singletons (SingI(..), Sing)
+import Data.Singletons (SingI(..), Sing, SingKind(..), SomeSing(..))
 import Data.Type.Bool (If, type (&&))
 import Data.Type.Equality (type (==))
 import GHC.TypeLits (Symbol, symbolVal, Nat, natVal, KnownSymbol, KnownNat)
@@ -81,10 +81,11 @@ data HighSExpr = HCons HighSExpr HighSExpr
     - [GHC.TypeLitsと型レベルFizzBuzz - Qiita](https://qiita.com/myuon_myon/items/dc6184f8e3d06ce3126c)
 -}
 
-newtype instance Sing ('HAtomSymbol s) = HAtomSymbolS MaruSymbol
-newtype instance Sing ('HAtomInt n)    = HAtomIntS Int
-data instance Sing 'HNil        = HNilS
-data instance Sing ('HCons x y) = HConsS (Sing x) (Sing y)
+data instance Sing (a :: HighSExpr) :: * where
+  HAtomSymbolS :: MaruSymbol -> Sing ('HAtomSymbol s)
+  HAtomIntS    :: Int -> Sing ('HAtomInt n)
+  HNilS        :: Sing 'HNil
+  HConsS       :: Sing x -> Sing y -> Sing ('HCons x y)
 
 {-
     善子「漆黒、暗黒の道は…ここからよ。ふふふ」
@@ -123,6 +124,19 @@ instance (SingI x, SingI y) => SingI ('HCons x y) where
     let x' = sing :: Sing x
         y' = sing :: Sing y
     in HConsS  x' y'
+
+
+instance SingKind HighSExpr where
+  type DemoteRep HighSExpr = SExpr
+  fromSing HNilS            = Nil
+  fromSing (HAtomSymbolS s) = AtomSymbol s
+  fromSing (HAtomIntS n)    = AtomInt n
+  fromSing (HConsS x y)     = Cons (fromSing x) (fromSing y)
+  toSing Nil            = SomeSing HNilS
+  toSing (AtomSymbol s) = SomeSing $ HAtomSymbolS s
+  toSing (AtomInt n)    = SomeSing $ HAtomIntS n
+  toSing (Cons x y)     = case (toSing x, toSing y) of
+                               (SomeSing x', SomeSing y') -> SomeSing $ HConsS x' y'
 
 {-
     善子「術式展開、魔力装填。
