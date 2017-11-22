@@ -89,21 +89,26 @@ data instance Sing (a :: HighSExpr) :: * where
 
 {-
     善子「漆黒、暗黒の道は…ここからよ。ふふふ」
-    花丸「newtype instanceってなんずら？」
+    花丸「この変なかたちのdata instanceはなんずら？」
 
-    善子「ずら丸はdata instanceは知ってる？」
-    花丸「type familyの、type synonymじゃなくてdata構築子を使う方ずら。
-          open data familiesでしょ？」
-    善子「そうね。
-          だからnewtype instanceもopen newtype familiesの割り当て規則の定義なのよ」
-    花丸「あ〜、そっか、なるほどずら！」
+    善子「ずら丸はclosed type familyは知ってる？」
+    花丸「type instanceのGADTsを使う方……
+          各割り当てを全部where句の中で定義するから、追加で割り当てを定義できないやつ
+          ……ずら？」
+    善子「それね。
+          今回のこれはclosed data family、単に、今ずら丸が言ったそれのdata版よ」
+    善子「closedであることは、下で定義している`SingKind HighSExpr`インスタンスに必要なの」
 
+    花丸「なるほどずら〜」
     善子「open/closed type/data familiesについてはここが詳しいわよ」
 
     - [型族が単射だと嬉しい理由 - Qiita](https://qiita.com/lotz/items/6c038698c8f04f57113a)
 
-    善子「ちなみに型付けとしては、(HNilS :: Sing HNil)値になるわ」
-    善子「カインドのちからが…翼に集ってくる…！！」
+    花丸「なんでclosed type familiesとclosed data famileiesの構文は全然違うずら？」
+    善子「仕様よ」
+    花丸「仕様」
+    善子「きっと天使たちの襲来のひずみね。GHCの人たちはおののいてしまったの」
+    花丸「ずらあ……」
 -}
 
 instance SingI 'HNil where
