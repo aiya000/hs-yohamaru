@@ -81,10 +81,10 @@ data HighSExpr = HCons HighSExpr HighSExpr
     - [GHC.TypeLitsと型レベルFizzBuzz - Qiita](https://qiita.com/myuon_myon/items/dc6184f8e3d06ce3126c)
 -}
 
-newtype instance Sing (HAtomSymbol s) = HAtomSymbolS MaruSymbol
-newtype instance Sing (HAtomInt n) = HAtomIntS Int
-data instance Sing HNil = HNilS
-data instance Sing (HCons x y) = HConsS (Sing x) (Sing y)
+newtype instance Sing ('HAtomSymbol s) = HAtomSymbolS MaruSymbol
+newtype instance Sing ('HAtomInt n)    = HAtomIntS Int
+data instance Sing 'HNil        = HNilS
+data instance Sing ('HCons x y) = HConsS (Sing x) (Sing y)
 
 {-
     善子「漆黒、暗黒の道は…ここからよ。ふふふ」
@@ -105,20 +105,20 @@ data instance Sing (HCons x y) = HConsS (Sing x) (Sing y)
     善子「カインドのちからが…翼に集ってくる…！！」
 -}
 
-instance SingI HNil where
-  sing :: Sing HNil
+instance SingI 'HNil where
+  sing :: Sing 'HNil
   sing = HNilS
 
-instance KnownSymbol s => SingI (HAtomSymbol s) where
-  sing :: Sing (HAtomSymbol s)
+instance KnownSymbol s => SingI ('HAtomSymbol s) where
+  sing :: Sing ('HAtomSymbol s)
   sing = HAtomSymbolS . MSym.pack $ symbolVal (Proxy :: Proxy s)
 
-instance KnownNat n => SingI (HAtomInt n) where
-  sing :: Sing (HAtomInt n)
+instance KnownNat n => SingI ('HAtomInt n) where
+  sing :: Sing ('HAtomInt n)
   sing = HAtomIntS . fromInteger $ natVal (Proxy :: Proxy n)
 
-instance (SingI x, SingI y) => SingI (HCons x y) where
-  sing :: Sing (HCons x y)
+instance (SingI x, SingI y) => SingI ('HCons x y) where
+  sing :: Sing ('HCons x y)
   sing =
     let x' = sing :: Sing x
         y' = sing :: Sing y
@@ -155,9 +155,7 @@ instance (SingI x, SingI y) => SingI (HCons x y) where
             instance KnownSymbol s => SingI (HAtomSymbol (s :: Symbol))
           はありよ」
     花丸「わかりやすいずら〜」
--}
 
-{-
     花丸「ていうかインスタンス宣言って、*カインドの型以外にも書けたずら？」
     善子「ええ、PolyKinds拡張のおかげで、こんな感じに書けるわ」
 
@@ -177,44 +175,41 @@ instance (SingI x, SingI y) => SingI (HCons x y) where
     花丸「依存型周りのことずらね」
 -}
 
-type instance HNil          == HNil          = True
-type instance HAtomInt x    == HAtomInt y    = x == y
-type instance HAtomSymbol x == HAtomSymbol y = x == y
-type instance HCons x1 y1   == HCons x2 y2   = x1 == x2 && y1 == y2
-
-{-
--}
+type instance 'HNil          == 'HNil          = 'True
+type instance 'HAtomInt x    == 'HAtomInt y    = x == y
+type instance 'HAtomSymbol x == 'HAtomSymbol y = x == y
+type instance 'HCons x1 y1   == 'HCons x2 y2   = x1 == x2 && y1 == y2
 
 -- | `assumption`ならば`result`
 type family AsFarAs (assumption :: k) (result :: k) :: Maybe k where
-  AsFarAs x y = If (x == y) (Just y) Nothing
+  AsFarAs x y = If (x == y) ('Just y) 'Nothing
 
 type family ZuraEats (xs :: HighSExpr) :: HighSExpr where
-  ZuraEats (HCons x xs) = xs
-  ZuraEats _            = HAtomSymbol "おらののっぽパンがないずら！？"
+  ZuraEats ('HCons x xs) = xs
+  ZuraEats _             = 'HAtomSymbol "おらののっぽパンがないずら！？"
 
 {-
     善子「Lispライクに定理証明したいから、申し訳程度だけどDSLを作ったわ」
 -}
 
 type family ExtractProof (x :: Maybe HighSExpr) :: HighSExpr where
-  ExtractProof (Just x) = x
-  ExtractProof _        = HAtomSymbol "証明が間違ってるずら"
+  ExtractProof ('Just x) = x
+  ExtractProof _         = 'HAtomSymbol "証明が間違ってるずら"
 
 {-
 -}
 
 -- | のっぽパン
-type Noppo = HAtomSymbol "noppo-pan"
+type Noppo = 'HAtomSymbol "noppo-pan"
 
 -- | 1つあるのっぽパンは食べたらなくなる
 type XProof =
-  (AsFarAs (ZuraEats (HCons Noppo HNil)) HNil)
+  (AsFarAs (ZuraEats ('HCons Noppo 'HNil)) 'HNil)
 
 -- | 1つあるのっぽパンにのっぽパンが1つ増えたら、食べても1つ残る
 type YProof =
-  (AsFarAs (ZuraEats (HCons Noppo (HCons Noppo HNil)))
-      (HCons Noppo HNil))
+  (AsFarAs (ZuraEats ('HCons Noppo ('HCons Noppo 'HNil)))
+      ('HCons Noppo 'HNil))
 
 x :: Sing (ExtractProof XProof)
 x = sing
@@ -222,7 +217,6 @@ x = sing
 main :: IO ()
 main = do
   putStrLn "天界にてLispで定理証明…やっていくわよ！"
-
 
 {- その他参考ページ
     - [【ラブライブ！サンシャイン!! 1期】ヨハネこと津島善子の中二病セリフまとめ！大げさすぎてかわいい！ | まとめまとめ](http://matomame.jp/user/FrenchToast/b3b034e76e6bef49d27b?page=1)
