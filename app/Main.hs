@@ -274,9 +274,13 @@ type YProof =
 x :: Sing (ExtractProof XProof)
 x = sing
 
+y :: Sing (ExtractProof YProof)
+y = sing
+
 main :: IO ()
 main = do
-  putStrLn "天界にてLispで定理証明…やっていくわよ！"
+  print $ fromSing x
+  print $ fromSing y
 
 {- その他参考ページ
     - [【ラブライブ！サンシャイン!! 1期】ヨハネこと津島善子の中二病セリフまとめ！大げさすぎてかわいい！ | まとめまとめ](http://matomame.jp/user/FrenchToast/b3b034e76e6bef49d27b?page=1)
